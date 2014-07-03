@@ -88,7 +88,7 @@ class gpg3100(object):
     ch_count = 0
     range = AD_10V
     
-    def __init__(self, ndev=1, lib='./lib_gpg3100.so'):
+    def __init__(self, ndev=1, lib='library/lib_gpg3100.so'):
         self.set_device_number(ndev)
         if lib is None: pass
         else: self.load_library(lib)

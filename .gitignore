@@ -1,4 +1,7 @@
 
+# C
+*.o
+
 # python
 *.pyc
 

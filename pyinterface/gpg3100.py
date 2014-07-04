@@ -1,5 +1,11 @@
 
+import os
 import ctypes
+import pyinterface
+
+SO_NAME = 'lib_gpg3100.so'
+SO_PATH = os.path.join(pyinterface.LIB_PATH, SO_NAME)
+
 
 # Identifers
 # ----------
@@ -88,11 +94,12 @@ class gpg3100(object):
     ch_count = 0
     range = AD_10V
     
-    def __init__(self, ndev=1, lib='library/lib_gpg3100.so'):
+    def __init__(self, ndev=1, lib=SO_PATH):
         self.set_device_number(ndev)
         if lib is None: pass
         else: self.load_library(lib)
         self.use_singleend()
+        self.set_range(AD_10V)
         pass
     
     def load_library(self, lib):
@@ -101,17 +108,24 @@ class gpg3100(object):
         return
     
     def set_device_number(self, ndev):
-        self.ndev = ndev
+        self.ndev = ctypes.c_long(ndev)
         return
     
     def use_singleend(self):
-        self.mode = AD_INPUT_SINGLE
+        self.mode = ctypes.c_ulong(AD_INPUT_SINGLE)
         self.ch_count = self.info.ChCountS
         return
     
     def use_differential(self):
-        self.mode = AD_INPUT_DIFF
+        self.mode = ctypes.c_ulong(AD_INPUT_DIFF)
         self.ch_count = self.info.ChCountD
+        return
+    
+    def set_range(self, range):
+        self.range = ctypes.c_ulong(range)
+    
+    def show_device_info(self):
+        print(self.info)
         return
     
     def get_device_info(self):
@@ -126,7 +140,19 @@ class gpg3100(object):
         return info
     
     def get_oneshot_ad(self):
-        d = (ctypes.c_ushort * self.ch_count)(0, 0)
-        self.lib.get_oneshot_ad(self.ndev, self.mode, self.range,
-                                ctypes.byref(d), self.ch_count)
+        d = (ctypes.c_ushort * self.ch_count)(0)
+        self.lib.get_oneshot_ad(self.ndev, self.mode, self.range, ctypes.byref(d))
         return list(d)
+    
+    def get_ad(self, num, freq, start=0):
+        d = (ctypes.c_ushort * (self.ch_count * num))(0)
+        c_num = ctypes.c_ulong(num)
+        c_freq = ctypes.c_float(freq)
+        c_start = ctypes.c_double(start)
+        self.lib.get_ad(self.ndev, self.mode, self.range, c_num,
+                        c_freq, c_start, ctypes.byref(d))
+        dd = list(d)
+        ddd = [d[i:i+self.ch_count] for i in range(0, len(dd), self.ch_count)]
+        
+        return ddd
+        

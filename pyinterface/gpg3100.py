@@ -476,8 +476,11 @@ class gpg3100_monitor_client(object):
             x = numpy.arange(0, num/freq, 1/freq)
             y = numpy.array(data).T
             for i in range(self.num_lines):
-                self.lines.set_data(x, y[i])
+                self.lines[i].set_data(x, y[i])
                 continue
+            
+            self.ax.set_xlim(x[0], x[-1])
+            self.ax.set_ylim(20000, 40000)
             return
         
         self.sock = socket.socket()
@@ -499,17 +502,18 @@ class gpg3100_monitor_client(object):
         
         
         fig = pylab.figure()
-        ax = fig.add_subplot(111)
+        self.ax = fig.add_subplot(111)
         
         self.lines = []
         for i in range(self.num_lines):
-            line, = ax.plot([], [])
+            line, = self.ax.plot([], [])
             self.lines.append(line)
             continue
         
         anime = matplotlib.animation.FuncAnimation(fig, refresh, frames=1000,
                                                    interval=10, blit=False)
         pylab.show()
+        self.sock.close()
         
         print('stop')
         return

@@ -568,12 +568,37 @@ class gpg3100(object):
         da = self._analogize(dd, self._status_input_range)
         self._status_input_value = da
         self._status_input_value_digit = dd
-        print(da[:5])
-        print(dd[:5])
         return da
-        
+    
     def _analogize(self, data, drange):
         return [r.analogize(d, 2**self._resolution) for d,r in zip(data, drange)]
+    
+    def input_series(self, freq, num):
+        self.ctrl.set_sampling_config(self._input_ch, self._status_input_range, num,
+                                      freq, None, self._sampling_mode, self._single_diff)
+        self.ctrl.start_sampling()
+        dd = self.ctrl.get_sampling_data(self._ch_count * num)
+        dd = numpy.array(dd).reshape(num, self._ch_count)
+        da = self._analogize(dd.T, self._status_input_range)
+        return numpy.array(da).T
+    
+    def input_sync(self, freq, num, master_slave):
+        """
+        master_slave : 'AD_MASTER_MODE' or 'AD_SLAVE_MODE'
+        """
+        self.ctrl.set_sampling_config(self._input_ch, self._status_input_range, num,
+                                      freq, None, self._sampling_mode, self._single_diff)
+        self.ctrl.sync_sampling(master_slave)
+        return
+    
+    def get_status(self):
+        return self.ctrl.get_status()
+    
+    def get_sampling_data(self, num):
+        dd = self.ctrl.get_sampling_data(self._ch_count * num)
+        dd = numpy.array(dd).reshape(num, self._ch_count)
+        da = self._analogize(dd.T, self._status_input_range)
+        return numpy.array(da).T
     
     def read_board_name(self):
         return self._board_name
@@ -813,7 +838,7 @@ class gpg3100_controller(object):
         config.ulTrigEdge = TriggerEdge.verify(trig_edge)
         config.ulTrigDI = trig_di
         config.ulFastMode = FastMode.verify(fast)
-        #print(config)
+        print(config)
         return config
     
     def _create_sampling_ch_config(self, chs, ranges):

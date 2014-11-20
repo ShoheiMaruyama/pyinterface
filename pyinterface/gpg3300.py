@@ -444,7 +444,7 @@ class gpg3300(object):
         return
         
     def set_da_value(self, value, ch=None):
-        self._set_output(self._status_output_value, value, ch)
+        self._set_output(self._status_output_value, value, ch, dtype=float)
         if self._status_output: self.output()
         return
         
@@ -453,8 +453,8 @@ class gpg3300(object):
         if self._status_output: self.output()
         return
 
-    def _set_output(self, config, value, ch, checker=None):
-        value_is_list = (type(value) in [list, tuple])
+    def _set_output(self, config, value, ch, checker=None, dtype=None):
+        value_is_list = (type(value) in [list, tuple, numpy.ndarray])
         ch_is_list = (type(ch) in [list, tuple])
         if (not value_is_list) & (not ch_is_list):
             if ch is None:
@@ -474,6 +474,7 @@ class gpg3300(object):
         
         for c, v, check in zip(ch, value, checker):
             if check is not None: v = check(v)
+            if dtype is not None: v = dtype(v)
             config[c] = v
             continue
         return
@@ -612,6 +613,11 @@ class gpg3300_controller(object):
         ret = libgpg3300.DaGetDeviceInfo(self.ndev, info)
         self._error_check(ret)
         self._latest_device_info = info
+        resolution = info.ulResolution
+        if resolution==8: self._data_size = ctypes.c_ubyte
+        if resolution==12: self._data_size = ctypes.c_ushort
+        if resolution==16: self._data_size = ctypes.c_ushort
+        if resolution==24: self._data_size = ctypes.c_ulong
         print(info)
         return info
     
@@ -788,8 +794,10 @@ class gpg3300_controller(object):
         ch_config = self._create_sampling_ch_config(chs, ranges)
         if len(ch_config)!=len(data):
             raise ValueError, 'Size dosen\'t match. len(data)=%d, len(chs)=%d'%(len(data), len(ch_config))
-        d = (ctypes.c_ulong * len(data))()
-        for i in range(len(data)): d[i] = data[i]
+        d = (self._data_size * len(data))()
+        for i in range(len(data)):
+            print(i, data[i])
+            d[i] = data[i]
         ret = libgpg3300.DaOutputDA(self.ndev, len(data), ch_config, d)
         self._error_check(ret)
         return
@@ -803,7 +811,7 @@ class gpg3300_controller(object):
         
     def output_da_ex(self, data):
         self._log('output_da_ex')
-        d = (ctypes.c_ulong * len(data))()
+        d = (self._data_size * len(data))()
         for i in range(len(data)): d[i] = data[i]
         ret = libgpg3300.DaOutputDAEx(self.ndev, d)
         self._error_check(ret)

@@ -36,7 +36,13 @@ class Identifer(object):
             if value == to_be_verified: return key
             continue
         return 'NO ID'
-        pass
+    
+    @classmethod
+    def get_element(cls, to_be_verified):
+        for key, value in cls.__dict__.iteritems():
+            if value == to_be_verified: return value
+            continue
+        return None
     
     @classmethod
     def print_members(cls):
@@ -122,8 +128,10 @@ class Structure(ctypes.Structure):
 
 # ---
 
-from gpg3100 import gpg3100
+import gpg3100
 import gpg3300
+
+from gpg3100 import gpg3100 as create_gpg3100
 from gpg3300 import gpg3300 as create_gpg3300
 
 

@@ -500,6 +500,33 @@ class gpg3300(object):
     def _digitize(self, data, drange):
         return [r.digitize(d, 2**self._resolution) for d,r in zip(data, drange)]
     
+    def output_series(self, data, ch, range, freq, repeat, syncflag):
+        data = numpy.array(data)
+        if data.ndim==1: d = d.reshape([-1,1])
+        else: d = data.T
+        datasize = len(d)
+        self.ctrl.set_board_config(datasize, None, 0)
+        self.ctrl.set_sampling_config(ch, range, freq, repeat)
+        self.ctrl.clear_sampling_data()
+        self.ctrl.set_sampling_data(d)
+        self.ctrl.start_sampling(syncflag)
+        return
+    
+    def output_sync(self, data, ch, range, freq, repeat, master_slave):
+        data = numpy.array(data)
+        if data.ndim==1: d = d.reshape([-1,1])
+        else: d = data.T
+        datasize = len(d)
+        self.ctrl.set_board_config(datasize, None, 0)
+        self.ctrl.set_sampling_config(ch, range, freq, repeat)
+        self.ctrl.clear_sampling_data()
+        self.ctrl.set_sampling_data(d)
+        self.ctrl.sync_sampling(master_slave)
+        return
+        
+    def get_status(self):
+        return self.ctrl.get_status()
+    
     def read_board_name(self):
         return self._board_name
     
@@ -638,8 +665,8 @@ class gpg3300_controller(object):
         print('SmplBufferSize = %d, SmplEventFactor = %d (%s)'%(size, factor, EventFactor.get_id(factor)))
         return size, factor
 
-    def set_sampling_config(self, chs=None, ranges=None, freq=None, repeat=None, mode=None, trig_mode=None, trig_point=None, trig_delay=None,
-                            clock_edge=None, trig_edge=None, trig_di=None):
+    def set_sampling_config(self, chs=None, ranges=None, freq=None, repeat=None, mode=None, trig_mode=None,
+                            trig_point=None, trig_delay=None, clock_edge=None, trig_edge=None, trig_di=None):
         self._log('set_sampling_config')
         config = self._create_sampling_config(chs, ranges, freq, repeat, mode, trig_mode, trig_point, trig_delay,
                                               clock_edge, trig_edge, trig_di)

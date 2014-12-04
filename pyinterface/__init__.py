@@ -94,6 +94,129 @@ class IdentiferElement(object):
         if self.id & x: return 1
         return 0
 
+class BitIdentifer(object):
+    size = 0
+    bits = []
+    
+    def __init__(self, value=None):
+        if value is not None:
+            if type(value)==int: self.set(value)
+            if type(value)==str: self.set_by_str(value)
+            pass
+        pass
+    
+    def __int__(self):
+        return sum([int(b) for b in self.bits])
+    
+    def __repr__(self):
+        msg = '%s\n'%(object.__repr__(self))
+        for b in self.bits:
+            if b.is_set():
+                msg += '%3d : %s = %d (%s)\n'%(b.bit, b.name, b, b)
+            else:
+                msg += '%3d :   (%s)\n'%(b.bit, b.name)
+                pass
+        return msg
+        
+    def __len__(self):
+        return self.size
+        
+    def __getitem__(self, i):
+        return self.bits[i]
+        
+    def set(self, value):
+        [b.set(value) for b in self.bits]
+        return
+        
+    def set_by_str(self, string):
+        [b.set_by_str(string) for b in self.bits]
+        return
+    
+    def _get(self, on_off='ON'):
+        if on_off=='ON': return [b.bit for b in self.bits if b&b.is_set()]
+        return [b.bit for b in self.bits if (not b)&b.is_set()]
+        
+    def get_on(self):
+        return ', '.join(['%d:%s'%(b.bit, b.name) for b in self._get('ON')])
+
+    def get_off(self):
+        return ', '.join(['%d:%s'%(b.bit, b.name) for b in self._get('OFF')])
+    
+    def get_ind_on(self):
+        return [b.bit for b in self._get('ON')]
+
+    def get_ind_off(self):
+        return [b.bit for b in self._get('OFF')]
+
+    def count_on(self):
+        return sum([1 for b in self._get('ON')])
+
+    def count_off(self):
+        return sum([1 for b in self._get('OFF')])
+
+
+class BitIdentiferElement(object):
+    name = 'N/A'
+    val0 = ''
+    val1 = ''
+    value = 0
+    bit = 0
+    
+    def __init__(self, bit):
+        self.bit = bit
+        pass
+    
+    def __int__(self):
+        if self.value==1: return 2**self.bit
+        return 0
+    
+    def __bool__(self):
+        if not self.is_set(): return False
+        return bool(self.value)
+    # for python 2.x
+    __nonzero__ = __bool__
+        
+    def __repr__(self):
+        msg = '%s\n'%(object.__repr__(self))
+        if self.is_set():
+            msg += '%d, (%d:%s=%s)'%(self, self.bit, self.name, self)
+        else:
+            msg += '%d, (%d:%s)'%(self, self.bit, self.name)
+            pass
+        return msg
+        
+    def __str__(self):
+        if self.name=='N/A': return ''
+        if self: return self.val1
+        return self.val0
+    
+    def is_set(self):
+        if self.name =='N/A': return False
+        return True
+        
+    def set(self, value):
+        if value & 2**self.bit: return self.set_on()
+        return self.set_off()
+    
+    def set_by_str(self, string):
+        if self.name in string: return self.set_on()
+        return self.set_off()
+        
+    def set_on(self):
+        self.value = 1
+        return
+        
+    def set_off(self):
+        self.value = 0
+        return
+        
+    def set_params(self, name, v0, v1):
+        self.name = name
+        self.val0 = v0
+        self.val1 = v1
+        return
+    
+
 # error code
 # ----------
 class ErrorCode(object):
@@ -130,9 +253,11 @@ class Structure(ctypes.Structure):
 
 import gpg3100
 import gpg3300
+#import gpg7400
 
 from gpg3100 import gpg3100 as create_gpg3100
 from gpg3300 import gpg3300 as create_gpg3300
+#from gpg7400 import gpg7400 as create_gpg7400
 
 
 

@@ -948,7 +948,7 @@ class gpg3100_controller(object):
         return 
 
     def get_status(self):
-        self._log('get_status')
+        #self._log('get_status')
         status = ctypes.c_ulong(0)
         count = ctypes.c_ulong(0)
         rest = ctypes.c_ulong(0)
@@ -957,9 +957,9 @@ class gpg3100_controller(object):
         status = SamplingStatus.verify(status.value)
         count = count.value
         rest = rest.value
-        print('status : %d (%s)'%(status, status))
-        print('count : %d'%(count))
-        print('rest : %d'%(rest))
+        #print('status : %d (%s)'%(status, status))
+        #print('count : %d'%(count))
+        #print('rest : %d'%(rest))
         return status, count, rest
 
     def input_ad(self, chs=None, ranges=None, singlediff='AD_INPUT_SINGLE'):

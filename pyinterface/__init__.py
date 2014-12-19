@@ -253,6 +253,7 @@ class Structure(ctypes.Structure):
 
 import gpg3100
 import gpg3300
+import gpg7204
 #import gpg7400
 
 from gpg3100 import gpg3100 as create_gpg3100

@@ -4,42 +4,43 @@ import numpy
 
 import pyinterface
 import libgpg3300
+pIE = pyinterface.IdentiferElement
 
 
 # Identifer Wrapper
 # =================
 
 class OverlappedProcess(pyinterface.Identifer):
-    FLAG_SYNC = libgpg3300.FLAG_SYNC
-    FLAG_ASYNC = libgpg3300.FLAG_ASYNC
+    FLAG_SYNC = pIE('LAG_SYNC', libgpg3300.FLAG_SYNC)
+    FLAG_ASYNC = pIE('FLAG_ASYNC', libgpg3300.FLAG_ASYNC)
     pass
 
 class FileFormat(pyinterface.Identifer):
-    FLAG_BIN = libgpg3300.FLAG_BIN
-    FLAG_CSV = libgpg3300.FLAG_CSV
+    FLAG_BIN = pIE('FLAG_BIN', libgpg3300.FLAG_BIN)
+    FLAG_CSV = pIE('FLAG_CSV', libgpg3300.FLAG_CSV)
     pass
 
 class DataFormat(pyinterface.Identifer):
-    CONV_BIN = libgpg3300.CONV_BIN
-    CONV_PHYS = libgpg3300.CONV_PHYS
+    CONV_BIN = pIE('CONV_BIN', libgpg3300.CONV_BIN)
+    CONV_PHYS = pIE('CONV_PHYS', libgpg3300.CONV_PHYS)
     pass
 
 class AnalogOutputStatus(pyinterface.Identifer):
-    DA_STATUS_STOP_SAMPLING = libgpg3300.DA_STATUS_STOP_SAMPLING
-    DA_STATUS_WAIT_TRIGGER = libgpg3300.DA_STATUS_WAIT_TRIGGER
-    DA_STATUS_NOW_SAMPLING = libgpg3300.DA_STATUS_NOW_SAMPLING
+    DA_STATUS_STOP_SAMPLING = pIE('DA_STATUS_STOP_SAMPLING', libgpg3300.DA_STATUS_STOP_SAMPLING)
+    DA_STATUS_WAIT_TRIGGER = pIE('DA_STATUS_WAIT_TRIGGER', libgpg3300.DA_STATUS_WAIT_TRIGGER)
+    DA_STATUS_NOW_SAMPLING = pIE('DA_STATUS_NOW_SAMPLING', libgpg3300.DA_STATUS_NOW_SAMPLING)
     pass
 
 class EventFactor(pyinterface.Identifer):
-    DA_EVENT_STOP_TRIGGER = libgpg3300.DA_EVENT_STOP_TRIGGER
-    DA_EVENT_STOP_FUNCTION = libgpg3300.DA_EVENT_STOP_FUNCTION
-    DA_EVENT_STOP_SAMPLING = libgpg3300.DA_EVENT_STOP_SAMPLING
-    DA_EVENT_RESET_IN = libgpg3300.DA_EVENT_RESET_IN
-    DA_EVENT_CURRENT_OFF = libgpg3300.DA_EVENT_CURRENT_OFF
-    DA_EVENT_FIFO_EMPTY = libgpg3300.DA_EVENT_FIFO_EMPTY
-    DA_EVENT_EX_INT = libgpg3300.DA_EVENT_EX_INT
-    DA_EVENT_EXOV_OFF = libgpg3300.DA_EVENT_EXOV_OFF
-    DA_EVENT_OV_OFF = libgpg3300.DA_EVENT_OV_OFF
+    DA_EVENT_STOP_TRIGGER = pIE('DA_EVENT_STOP_TRIGGER', libgpg3300.DA_EVENT_STOP_TRIGGER)
+    DA_EVENT_STOP_FUNCTION = pIE('DA_EVENT_STOP_FUNCTION', libgpg3300.DA_EVENT_STOP_FUNCTION)
+    DA_EVENT_STOP_SAMPLING = pIE('DA_EVENT_STOP_SAMPLING', libgpg3300.DA_EVENT_STOP_SAMPLING)
+    DA_EVENT_RESET_IN = pIE('DA_EVENT_RESET_IN', libgpg3300.DA_EVENT_RESET_IN)
+    DA_EVENT_CURRENT_OFF = pIE('DA_EVENT_CURRENT_OFF', libgpg3300.DA_EVENT_CURRENT_OFF)
+    DA_EVENT_FIFO_EMPTY = pIE('DA_EVENT_FIFO_EMPTY', libgpg3300.DA_EVENT_FIFO_EMPTY)
+    DA_EVENT_EX_INT = pIE('DA_EVENT_EX_INT', libgpg3300.DA_EVENT_EX_INT)
+    DA_EVENT_EXOV_OFF = pIE('DA_EVENT_EXOV_OFF', libgpg3300.DA_EVENT_EXOV_OFF)
+    DA_EVENT_OV_OFF = pIE('DA_EVENT_OV_OFF', libgpg3300.DA_EVENT_OV_OFF)
     pass
 
 class OutputRangeElement(pyinterface.IdentiferElement):
@@ -56,11 +57,14 @@ class OutputRangeElement(pyinterface.IdentiferElement):
             flag_not_array = True
             value = [value]
             pass
+        value = numpy.array(value)
+        shape = value.shape
+        value1d = value.ravel()
         bit = numpy.linspace(self.min, self.max, resolution)
         bins = bit[:-1] + (bit[1] - bit[0])/2.
-        ret = numpy.digitize(value, bins)
+        ret = numpy.digitize(value1d, bins)
         if flag_not_array: ret = ret[0]
-        else: ret = list(ret)
+        else: ret = ret.reshape(shape)
         return ret
 
 _DA_0_1V = OutputRangeElement('DA_0_1V', libgpg3300.DA_0_1V, 0.0, 1.0)
@@ -123,210 +127,210 @@ class OutputRange(pyinterface.Identifer):
 
 
 class DataTransferArchtecture(pyinterface.Identifer):
-    DA_IO_SAMPLING = libgpg3300.DA_IO_SAMPLING
-    DA_FIFO_SAMPLING = libgpg3300.DA_FIFO_SAMPLING
-    DA_MEM_SAMPLING = libgpg3300.DA_MEM_SAMPLING
+    DA_IO_SAMPLING = pIE('DA_IO_SAMPLING', libgpg3300.DA_IO_SAMPLING)
+    DA_FIFO_SAMPLING = pIE('DA_FIFO_SAMPLING', libgpg3300.DA_FIFO_SAMPLING)
+    DA_MEM_SAMPLING = pIE('DA_MEM_SAMPLING', libgpg3300.DA_MEM_SAMPLING)
     pass
 
 class TriggerPoint(pyinterface.Identifer):
-    DA_TRIG_START = libgpg3300.DA_TRIG_START
-    DA_TRIG_STOP = libgpg3300.DA_TRIG_STOP
-    DA_TRIG_START_STOP = libgpg3300.DA_TRIG_START_STOP
+    DA_TRIG_START = pIE('DA_TRIG_START', libgpg3300.DA_TRIG_START)
+    DA_TRIG_STOP = pIE('DA_TRIG_STOP', libgpg3300.DA_TRIG_STOP)
+    DA_TRIG_START_STOP = pIE('DA_TRIG_START_STOP', libgpg3300.DA_TRIG_START_STOP)
     pass
 
 class TriggerMode(pyinterface.Identifer):
-    DA_FREERUN = libgpg3300.DA_FREERUN
-    DA_EXTTRG = libgpg3300.DA_EXTTRG
-    DA_EXTTRG_DI = libgpg3300.DA_EXTTRG_DI
+    DA_FREERUN = pIE('DA_FREERUN', libgpg3300.DA_FREERUN)
+    DA_EXTTRG = pIE('DA_EXTTRG', libgpg3300.DA_EXTTRG)
+    DA_EXTTRG_DI = pIE('DA_EXTTRG_DI', libgpg3300.DA_EXTTRG_DI)
     pass
 
 class Polarity(pyinterface.Identifer):
-    DA_DOWN_EDGE = libgpg3300.DA_DOWN_EDGE
-    DA_UP_EDGE = libgpg3300.DA_UP_EDGE
+    DA_DOWN_EDGE = pIE('DA_DOWN_EDGE', libgpg3300.DA_DOWN_EDGE)
+    DA_UP_EDGE = pIE('DA_UP_EDGE', libgpg3300.DA_UP_EDGE)
     pass
 
 class PulsePolarity(pyinterface.Identifer):
-    DA_LOW_PULSE = libgpg3300.DA_LOW_PULSE
-    DA_HIGH_PULSE = libgpg3300.DA_HIGH_PULSE
+    DA_LOW_PULSE = pIE('DA_LOW_PULSE', libgpg3300.DA_LOW_PULSE)
+    DA_HIGH_PULSE = pIE('DA_HIGH_PULSE', libgpg3300.DA_HIGH_PULSE)
     pass
 
 class SimultaneousOutput(pyinterface.Identifer):
-    DA_NORMAL_MODE = libgpg3300.DA_NORMAL_MODE
-    DA_FAST_MODE = libgpg3300.DA_FAST_MODE
+    DA_NORMAL_MODE = pIE('DA_NORMAL_MODE', libgpg3300.DA_NORMAL_MODE)
+    DA_FAST_MODE = pIE('DA_FAST_MODE', libgpg3300.DA_FAST_MODE)
     pass
 
 class Isolation(pyinterface.Identifer):
-    DA_ISOLATION = libgpg3300.DA_ISOLATION
-    DA_NOT_ISOLATION = libgpg3300.DA_NOT_ISOLATION
+    DA_ISOLATION = pIE('DA_ISOLATION', libgpg3300.DA_ISOLATION)
+    DA_NOT_ISOLATION = pIE('DA_NOT_ISOLATION', libgpg3300.DA_NOT_ISOLATION)
     pass
 
 class RangeType(pyinterface.Identifer):
-    DA_RANGE_UNIPOLAR = libgpg3300.DA_RANGE_UNIPOLAR
-    DA_RANGE_BIPOLAR = libgpg3300.DA_RANGE_BIPOLAR
+    DA_RANGE_UNIPOLAR = pIE('DA_RANGE_UNIPOLAR', libgpg3300.DA_RANGE_UNIPOLAR)
+    DA_RANGE_BIPOLAR = pIE('DA_RANGE_BIPOLAR', libgpg3300.DA_RANGE_BIPOLAR)
     pass
 
 class Filter(pyinterface.Identifer):
-    DA_FILTER_OFF = libgpg3300.DA_FILTER_OFF
-    DA_FILTER_ON = libgpg3300.DA_FILTER_ON
+    DA_FILTER_OFF = pIE('DA_FILTER_OFF', libgpg3300.DA_FILTER_OFF)
+    DA_FILTER_ON = pIE('DA_FILTER_ON', libgpg3300.DA_FILTER_ON)
     pass
 
 class WaveformGenerationMode(pyinterface.Identifer):
-    DA_MODE_CUT = libgpg3300.DA_MODE_CUT
-    DA_MODE_SYNTHE = libgpg3300.DA_MODE_SYNTHE
+    DA_MODE_CUT = pIE('DA_MODE_CUT', libgpg3300.DA_MODE_CUT)
+    DA_MODE_SYNTHE = pIE('DA_MODE_SYNTHE', libgpg3300.DA_MODE_SYNTHE)
     pass
 
 class RepeateMode(pyinterface.Identifer):
-    DA_MODE_REPEAT = libgpg3300.DA_MODE_REPEAT
-    DA_MODE_SINGLE = libgpg3300.DA_MODE_SINGLE
+    DA_MODE_REPEAT = pIE('DA_MODE_REPEAT', libgpg3300.DA_MODE_REPEAT)
+    DA_MODE_SINGLE = pIE('DA_MODE_SINGLE', libgpg3300.DA_MODE_SINGLE)
     pass
 
 class CounterClear(pyinterface.Identifer):
-    DA_COUNTER_CLEAR = libgpg3300.DA_COUNTER_CLEAR
-    DA_COUNTER_NONCLEAR = libgpg3300.DA_COUNTER_NONCLEAR
+    DA_COUNTER_CLEAR = pIE('DA_COUNTER_CLEAR', libgpg3300.DA_COUNTER_CLEAR)
+    DA_COUNTER_NONCLEAR = pIE('DA_COUNTER_NONCLEAR', libgpg3300.DA_COUNTER_NONCLEAR)
     pass
 
 class DaLatch(pyinterface.Identifer):
-    DA_LATCH_CLEAR = libgpg3300.DA_LATCH_CLEAR
-    DA_LATCH_NONCLEAR = libgpg3300.DA_LATCH_NONCLEAR
+    DA_LATCH_CLEAR = pIE('DA_LATCH_CLEAR', libgpg3300.DA_LATCH_CLEAR)
+    DA_LATCH_NONCLEAR = pIE('DA_LATCH_NONCLEAR', libgpg3300.DA_LATCH_NONCLEAR)
     pass
 
 class ClockSource(pyinterface.Identifer):
-    DA_CLOCK_TIMER = libgpg3300.DA_CLOCK_TIMER
-    DA_CLOCK_FIXED = libgpg3300.DA_CLOCK_FIXED
+    DA_CLOCK_TIMER = pIE('DA_CLOCK_TIMER', libgpg3300.DA_CLOCK_TIMER)
+    DA_CLOCK_FIXED = pIE('DA_CLOCK_FIXED', libgpg3300.DA_CLOCK_FIXED)
     pass
 
 class TriggerConfig(pyinterface.Identifer):
-    DA_EXTRG_IN = libgpg3300.DA_EXTRG_IN
-    DA_EXTRG_OUT = libgpg3300.DA_EXTRG_OUT
-    DA_EXINT_IN = libgpg3300.DA_EXINT_IN
+    DA_EXTRG_IN = pIE('DA_EXTRG_IN', libgpg3300.DA_EXTRG_IN)
+    DA_EXTRG_OUT = pIE('DA_EXTRG_OUT', libgpg3300.DA_EXTRG_OUT)
+    DA_EXINT_IN = pIE('DA_EXINT_IN', libgpg3300.DA_EXINT_IN)
     pass
 
 class ClockConfig(pyinterface.Identifer):
-    DA_EXCLK_IN = libgpg3300.DA_EXCLK_IN
-    DA_EXCLK_OUT = libgpg3300.DA_EXCLK_OUT
+    DA_EXCLK_IN = pIE('DA_EXCLK_IN', libgpg3300.DA_EXCLK_IN)
+    DA_EXCLK_OUT = pIE('DA_EXCLK_OUT', libgpg3300.DA_EXCLK_OUT)
     pass
 
 class ResetPolarity(pyinterface.Identifer):
-    DA_RESET_DOWN_EDGE = libgpg3300.DA_RESET_DOWN_EDGE
-    DA_RESET_UP_EDGE = libgpg3300.DA_RESET_UP_EDGE
+    DA_RESET_DOWN_EDGE = pIE('DA_RESET_DOWN_EDGE', libgpg3300.DA_RESET_DOWN_EDGE)
+    DA_RESET_UP_EDGE = pIE('DA_RESET_UP_EDGE', libgpg3300.DA_RESET_UP_EDGE)
     pass
 
 class ExternalTriggerPolarity(pyinterface.Identifer):
-    DA_EXTRG_DOWN_EDGE = libgpg3300.DA_EXTRG_DOWN_EDGE
-    DA_EXTRG_UP_EDGE = libgpg3300.DA_EXTRG_UP_EDGE
+    DA_EXTRG_DOWN_EDGE = pIE('DA_EXTRG_DOWN_EDGE', libgpg3300.DA_EXTRG_DOWN_EDGE)
+    DA_EXTRG_UP_EDGE = pIE('DA_EXTRG_UP_EDGE', libgpg3300.DA_EXTRG_UP_EDGE)
     pass
 
 class SynchronousAnalogOutput(pyinterface.Identifer):
-    DA_MASTER_MODE = libgpg3300.DA_MASTER_MODE
-    DA_SLAVE_MODE = libgpg3300.DA_SLAVE_MODE
+    DA_MASTER_MODE = pIE('DA_MASTER_MODE', libgpg3300.DA_MASTER_MODE)
+    DA_SLAVE_MODE = pIE('DA_SLAVE_MODE', libgpg3300.DA_SLAVE_MODE)
     pass
 
 class SynchronousNumber(pyinterface.Identifer):
-    DA_SYNC_NUM_1 = libgpg3300.DA_SYNC_NUM_1
-    DA_SYNC_NUM_2 = libgpg3300.DA_SYNC_NUM_2
-    DA_SYNC_NUM_3 = libgpg3300.DA_SYNC_NUM_3
-    DA_SYNC_NUM_4 = libgpg3300.DA_SYNC_NUM_4
-    DA_SYNC_NUM_5 = libgpg3300.DA_SYNC_NUM_5
-    DA_SYNC_NUM_6 = libgpg3300.DA_SYNC_NUM_6
-    DA_SYNC_NUM_7 = libgpg3300.DA_SYNC_NUM_7
+    DA_SYNC_NUM_1 = pIE('DA_SYNC_NUM_1', libgpg3300.DA_SYNC_NUM_1)
+    DA_SYNC_NUM_2 = pIE('DA_SYNC_NUM_2', libgpg3300.DA_SYNC_NUM_2)
+    DA_SYNC_NUM_3 = pIE('DA_SYNC_NUM_3', libgpg3300.DA_SYNC_NUM_3)
+    DA_SYNC_NUM_4 = pIE('DA_SYNC_NUM_4', libgpg3300.DA_SYNC_NUM_4)
+    DA_SYNC_NUM_5 = pIE('DA_SYNC_NUM_5', libgpg3300.DA_SYNC_NUM_5)
+    DA_SYNC_NUM_6 = pIE('DA_SYNC_NUM_6', libgpg3300.DA_SYNC_NUM_6)
+    DA_SYNC_NUM_7 = pIE('DA_SYNC_NUM_7', libgpg3300.DA_SYNC_NUM_7)
     pass
 
 class AfterCloseExOutput(pyinterface.Identifer):
-    DA_OUTPUT_RESET = libgpg3300.DA_OUTPUT_RESET
-    DA_OUTPUT_MAINTAIN = libgpg3300.DA_OUTPUT_MAINTAIN
+    DA_OUTPUT_RESET = pIE('DA_OUTPUT_RESET', libgpg3300.DA_OUTPUT_RESET)
+    DA_OUTPUT_MAINTAIN = pIE('DA_OUTPUT_MAINTAIN', libgpg3300.DA_OUTPUT_MAINTAIN)
     pass
 
 class Reset(pyinterface.Identifer):
-    DA_RESET_ON = libgpg3300.DA_RESET_ON
-    DA_RESET_OFF = libgpg3300.DA_RESET_OFF
+    DA_RESET_ON = pIE('DA_RESET_ON', libgpg3300.DA_RESET_ON)
+    DA_RESET_OFF = pIE('DA_RESET_OFF', libgpg3300.DA_RESET_OFF)
     pass
 
 class CPZ360810DioFunction(pyinterface.Identifer):
-    DA_EX_DIO1 = libgpg3300.DA_EX_DIO1
-    DA_EX_DIO2 = libgpg3300.DA_EX_DIO2
-    DA_EX_DIO3 = libgpg3300.DA_EX_DIO3
-    DA_EX_DIO4 = libgpg3300.DA_EX_DIO4
-    DA_EX_DIO5 = libgpg3300.DA_EX_DIO5
+    DA_EX_DIO1 = pIE('DA_EX_DIO1', libgpg3300.DA_EX_DIO1)
+    DA_EX_DIO2 = pIE('DA_EX_DIO2', libgpg3300.DA_EX_DIO2)
+    DA_EX_DIO3 = pIE('DA_EX_DIO3', libgpg3300.DA_EX_DIO3)
+    DA_EX_DIO4 = pIE('DA_EX_DIO4', libgpg3300.DA_EX_DIO4)
+    DA_EX_DIO5 = pIE('DA_EX_DIO5', libgpg3300.DA_EX_DIO5)
     pass
 
 class PCI3525CnFunction(pyinterface.Identifer):
-    DA_CN_FREE = libgpg3300.DA_CN_FREE
-    DA_CN_EXTRG_IN = libgpg3300.DA_CN_EXTRG_IN
-    DA_CN_EXTRG_OUT = libgpg3300.DA_CN_EXTRG_OUT
-    DA_CN_EXCLK_IN = libgpg3300.DA_CN_EXCLK_IN
-    DA_CN_EXCLK_OUT = libgpg3300.DA_CN_EXCLK_OUT
-    DA_CN_EXINT_IN = libgpg3300.DA_CN_EXINT_IN
-    DA_CN_ATRG_IN = libgpg3300.DA_CN_ATRG_IN
-    DA_CN_DI = libgpg3300.DA_CN_DI
-    DA_CN_DO = libgpg3300.DA_CN_DO
-    DA_CN_DAOUT = libgpg3300.DA_CN_DAOUT
-    DA_CN_OPEN = libgpg3300.DA_CN_OPEN
-    DA_CN_EX_OUT1 = libgpg3300.DA_CN_EX_OUT1
-    DA_CN_EX_OUT2 = libgpg3300.DA_CN_EX_OUT2
+    DA_CN_FREE = pIE('DA_CN_FREE', libgpg3300.DA_CN_FREE)
+    DA_CN_EXTRG_IN = pIE('DA_CN_EXTRG_IN', libgpg3300.DA_CN_EXTRG_IN)
+    DA_CN_EXTRG_OUT = pIE('DA_CN_EXTRG_OUT', libgpg3300.DA_CN_EXTRG_OUT)
+    DA_CN_EXCLK_IN = pIE('DA_CN_EXCLK_IN', libgpg3300.DA_CN_EXCLK_IN)
+    DA_CN_EXCLK_OUT = pIE('DA_CN_EXCLK_OUT', libgpg3300.DA_CN_EXCLK_OUT)
+    DA_CN_EXINT_IN = pIE('DA_CN_EXINT_IN', libgpg3300.DA_CN_EXINT_IN)
+    DA_CN_ATRG_IN = pIE('DA_CN_ATRG_IN', libgpg3300.DA_CN_ATRG_IN)
+    DA_CN_DI = pIE('DA_CN_DI', libgpg3300.DA_CN_DI)
+    DA_CN_DO = pIE('DA_CN_DO', libgpg3300.DA_CN_DO)
+    DA_CN_DAOUT = pIE('DA_CN_DAOUT', libgpg3300.DA_CN_DAOUT)
+    DA_CN_OPEN = pIE('DA_CN_OPEN', libgpg3300.DA_CN_OPEN)
+    DA_CN_EX_OUT1 = pIE('DA_CN_EX_OUT1', libgpg3300.DA_CN_EX_OUT1)
+    DA_CN_EX_OUT2 = pIE('DA_CN_EX_OUT2', libgpg3300.DA_CN_EX_OUT2)
     pass
 
 class PCI3525ExternalTriggerPolarity(pyinterface.Identifer):
-    DA_START_DOWN_EDGE = libgpg3300.DA_START_DOWN_EDGE
-    DA_START_UP_EDGE = libgpg3300.DA_START_UP_EDGE
-    DA_STOP_DOWN_EDGE = libgpg3300.DA_STOP_DOWN_EDGE
-    DA_STOP_UP_EDGE = libgpg3300.DA_STOP_UP_EDGE
+    DA_START_DOWN_EDGE = pIE('DA_START_DOWN_EDGE', libgpg3300.DA_START_DOWN_EDGE)
+    DA_START_UP_EDGE = pIE('DA_START_UP_EDGE', libgpg3300.DA_START_UP_EDGE)
+    DA_STOP_DOWN_EDGE = pIE('DA_STOP_DOWN_EDGE', libgpg3300.DA_STOP_DOWN_EDGE)
+    DA_STOP_UP_EDGE = pIE('DA_STOP_UP_EDGE', libgpg3300.DA_STOP_UP_EDGE)
     pass
 
 class FifoTriggerLevel(pyinterface.Identifer):
-    DA_TRG_FREERUN = libgpg3300.DA_TRG_FREERUN
-    DA_TRG_EXTTRG = libgpg3300.DA_TRG_EXTTRG
-    DA_TRG_ATRG = libgpg3300.DA_TRG_ATRG
-    DA_TRG_SIGTIMER = libgpg3300.DA_TRG_SIGTIMER
-    DA_TRG_CNT_EQ = libgpg3300.DA_TRG_CNT_EQ
-    DA_TRG_Z_CLR = libgpg3300.DA_TRG_Z_CLR
-    DA_TRG_AD_START = libgpg3300.DA_TRG_AD_START
-    DA_TRG_AD_STOP = libgpg3300.DA_TRG_AD_STOP
-    DA_TRG_AD_PRETRG = libgpg3300.DA_TRG_AD_PRETRG
-    DA_TRG_AD_POSTTRG = libgpg3300.DA_TRG_AD_POSTTRG
-    DA_TRG_SMPLNUM = libgpg3300.DA_TRG_SMPLNUM
-    DA_TRG_FIFO_EMPTY = libgpg3300.DA_TRG_FIFO_EMPTY
-    DA_TRG_SYNC1 = libgpg3300.DA_TRG_SYNC1
-    DA_TRG_SYNC2 = libgpg3300.DA_TRG_SYNC2
-    DA_FIFORESET = libgpg3300.DA_FIFORESET
-    DA_RETRG = libgpg3300.DA_RETRG
+    DA_TRG_FREERUN = pIE('DA_TRG_FREERUN', libgpg3300.DA_TRG_FREERUN)
+    DA_TRG_EXTTRG = pIE('DA_TRG_EXTTRG', libgpg3300.DA_TRG_EXTTRG)
+    DA_TRG_ATRG = pIE('DA_TRG_ATRG', libgpg3300.DA_TRG_ATRG)
+    DA_TRG_SIGTIMER = pIE('DA_TRG_SIGTIMER', libgpg3300.DA_TRG_SIGTIMER)
+    DA_TRG_CNT_EQ = pIE('DA_TRG_CNT_EQ', libgpg3300.DA_TRG_CNT_EQ)
+    DA_TRG_Z_CLR = pIE('DA_TRG_Z_CLR', libgpg3300.DA_TRG_Z_CLR)
+    DA_TRG_AD_START = pIE('DA_TRG_AD_START', libgpg3300.DA_TRG_AD_START)
+    DA_TRG_AD_STOP = pIE('DA_TRG_AD_STOP', libgpg3300.DA_TRG_AD_STOP)
+    DA_TRG_AD_PRETRG = pIE('DA_TRG_AD_PRETRG', libgpg3300.DA_TRG_AD_PRETRG)
+    DA_TRG_AD_POSTTRG = pIE('DA_TRG_AD_POSTTRG', libgpg3300.DA_TRG_AD_POSTTRG)
+    DA_TRG_SMPLNUM = pIE('DA_TRG_SMPLNUM', libgpg3300.DA_TRG_SMPLNUM)
+    DA_TRG_FIFO_EMPTY = pIE('DA_TRG_FIFO_EMPTY', libgpg3300.DA_TRG_FIFO_EMPTY)
+    DA_TRG_SYNC1 = pIE('DA_TRG_SYNC1', libgpg3300.DA_TRG_SYNC1)
+    DA_TRG_SYNC2 = pIE('DA_TRG_SYNC2', libgpg3300.DA_TRG_SYNC2)
+    DA_FIFORESET = pIE('DA_FIFORESET', libgpg3300.DA_FIFORESET)
+    DA_RETRG = pIE('DA_RETRG', libgpg3300.DA_RETRG)
     pass
 
 class SimultaneousOutputSet(pyinterface.Identifer):
-    DA_NORMAL_OUTPUT = libgpg3300.DA_NORMAL_OUTPUT
-    DA_SYNC_OUTPUT = libgpg3300.DA_SYNC_OUTPUT
+    DA_NORMAL_OUTPUT = pIE('DA_NORMAL_OUTPUT', libgpg3300.DA_NORMAL_OUTPUT)
+    DA_SYNC_OUTPUT = pIE('DA_SYNC_OUTPUT', libgpg3300.DA_SYNC_OUTPUT)
     pass
 
 class Volume(pyinterface.Identifer):
-    DA_ADJUST_BIOFFSET = libgpg3300.DA_ADJUST_BIOFFSET
-    DA_ADJUST_UNIOFFSET = libgpg3300.DA_ADJUST_UNIOFFSET
-    DA_ADJUST_BIGAIN = libgpg3300.DA_ADJUST_BIGAIN
-    DA_ADJUST_UNIGAIN = libgpg3300.DA_ADJUST_UNIGAIN
+    DA_ADJUST_BIOFFSET = pIE('DA_ADJUST_BIOFFSET', libgpg3300.DA_ADJUST_BIOFFSET)
+    DA_ADJUST_UNIOFFSET = pIE('DA_ADJUST_UNIOFFSET', libgpg3300.DA_ADJUST_UNIOFFSET)
+    DA_ADJUST_BIGAIN = pIE('DA_ADJUST_BIGAIN', libgpg3300.DA_ADJUST_BIGAIN)
+    DA_ADJUST_UNIGAIN = pIE('DA_ADJUST_UNIGAIN', libgpg3300.DA_ADJUST_UNIGAIN)
     pass
 
 class CalibrationItem(pyinterface.Identifer):
-    DA_ADJUST_UP = libgpg3300.DA_ADJUST_UP
-    DA_ADJUST_DOWN = libgpg3300.DA_ADJUST_DOWN
-    DA_ADJUST_STORE = libgpg3300.DA_ADJUST_STORE
-    DA_ADJUST_STANDBY = libgpg3300.DA_ADJUST_STANDBY
-    DA_ADJUST_NOT_STORE = libgpg3300.DA_ADJUST_NOT_STORE
-    DA_ADJUST_STORE_INITAREA = libgpg3300.DA_ADJUST_STORE_INITAREA
-    DA_ADJUST_READ_FACTORY = libgpg3300.DA_ADJUST_READ_FACTORY
-    DA_ADJUST_READ_USER = libgpg3300.DA_ADJUST_READ_USER
+    DA_ADJUST_UP = pIE('DA_ADJUST_UP', libgpg3300.DA_ADJUST_UP)
+    DA_ADJUST_DOWN = pIE('DA_ADJUST_DOWN', libgpg3300.DA_ADJUST_DOWN)
+    DA_ADJUST_STORE = pIE('DA_ADJUST_STORE', libgpg3300.DA_ADJUST_STORE)
+    DA_ADJUST_STANDBY = pIE('DA_ADJUST_STANDBY', libgpg3300.DA_ADJUST_STANDBY)
+    DA_ADJUST_NOT_STORE = pIE('DA_ADJUST_NOT_STORE', libgpg3300.DA_ADJUST_NOT_STORE)
+    DA_ADJUST_STORE_INITAREA = pIE('DA_ADJUST_STORE_INITAREA', libgpg3300.DA_ADJUST_STORE_INITAREA)
+    DA_ADJUST_READ_FACTORY = pIE('DA_ADJUST_READ_FACTORY', libgpg3300.DA_ADJUST_READ_FACTORY)
+    DA_ADJUST_READ_USER = pIE('DA_ADJUST_READ_USER', libgpg3300.DA_ADJUST_READ_USER)
     pass
 
 class DataIdentifer(pyinterface.Identifer):
-    DA_DATA_PHYSICAL = libgpg3300.DA_DATA_PHYSICAL
-    DA_DATA_BIN8 = libgpg3300.DA_DATA_BIN8
-    DA_DATA_BIN12 = libgpg3300.DA_DATA_BIN12
-    DA_DATA_BIN16 = libgpg3300.DA_DATA_BIN16
-    DA_DATA_BIN24 = libgpg3300.DA_DATA_BIN24
-    DA_DATA_BIN14 = libgpg3300.DA_DATA_BIN14
+    DA_DATA_PHYSICAL = pIE('DA_DATA_PHYSICAL', libgpg3300.DA_DATA_PHYSICAL)
+    DA_DATA_BIN8 = pIE('DA_DATA_BIN8', libgpg3300.DA_DATA_BIN8)
+    DA_DATA_BIN12 = pIE('DA_DATA_BIN12', libgpg3300.DA_DATA_BIN12)
+    DA_DATA_BIN16 = pIE('DA_DATA_BIN16', libgpg3300.DA_DATA_BIN16)
+    DA_DATA_BIN24 = pIE('DA_DATA_BIN24', libgpg3300.DA_DATA_BIN24)
+    DA_DATA_BIN14 = pIE('DA_DATA_BIN14', libgpg3300.DA_DATA_BIN14)
     pass
 
 class DataConversion(pyinterface.Identifer):
-    DA_CONV_SMOOTH = libgpg3300.DA_CONV_SMOOTH
-    DA_CONV_AVERAGE1 = libgpg3300.DA_CONV_AVERAGE1
-    DA_CONV_AVERAGE2 = libgpg3300.DA_CONV_AVERAGE2
+    DA_CONV_SMOOTH = pIE('DA_CONV_SMOOTH', libgpg3300.DA_CONV_SMOOTH)
+    DA_CONV_AVERAGE1 = pIE('DA_CONV_AVERAGE1', libgpg3300.DA_CONV_AVERAGE1)
+    DA_CONV_AVERAGE2 = pIE('DA_CONV_AVERAGE2', libgpg3300.DA_CONV_AVERAGE2)
     pass
 
 class SamplingFreq(object):
@@ -501,29 +505,30 @@ class gpg3300(object):
         return [r.digitize(d, 2**self._resolution) for d,r in zip(data, drange)]
     
     def output_series(self, data, ch, range, freq, repeat, syncflag):
-        data = numpy.array(data)
-        if data.ndim==1: d = d.reshape([-1,1])
-        else: d = data.T
-        datasize = len(d)
+        datasize = len(data)
+        data = OutputRange.verify(range).digitize(data, 2**self._resolution)
         self.ctrl.set_board_config(datasize, None, 0)
         self.ctrl.set_sampling_config(ch, range, freq, repeat)
         self.ctrl.clear_sampling_data()
-        self.ctrl.set_sampling_data(d)
+        self.ctrl.set_sampling_data(data)
         self.ctrl.start_sampling(syncflag)
         return
     
     def output_sync(self, data, ch, range, freq, repeat, master_slave):
-        data = numpy.array(data)
-        if data.ndim==1: d = d.reshape([-1,1])
-        else: d = data.T
-        datasize = len(d)
+        datasize = len(data)
+        data = OutputRange.verify(range).digitize(data, 2**self._resolution)
         self.ctrl.set_board_config(datasize, None, 0)
         self.ctrl.set_sampling_config(ch, range, freq, repeat)
         self.ctrl.clear_sampling_data()
-        self.ctrl.set_sampling_data(d)
+        self.ctrl.set_sampling_data(data)
         self.ctrl.sync_sampling(master_slave)
         return
-        
+    
+    def stop_sampling(self):
+        self.ctrl.stop_sampling()
+        self.stop_output()
+        return
+    
     def get_status(self):
         return self.ctrl.get_status()
     
@@ -650,7 +655,7 @@ class gpg3300_controller(object):
     
     def set_board_config(self, buffer_size, callback_func, user_data):
         self._log('set_board_config')
-        ret = libgpg3300.DaSetBoardConfig(self.ndev, buffer_size, None, callbacl_func, user_data)
+        ret = libgpg3300.DaSetBoardConfig(self.ndev, buffer_size, None, callback_func, user_data)
         self._error_check(ret)
         return
     
@@ -665,7 +670,7 @@ class gpg3300_controller(object):
         print('SmplBufferSize = %d, SmplEventFactor = %d (%s)'%(size, factor, EventFactor.get_id(factor)))
         return size, factor
 
-    def set_sampling_config(self, chs=None, ranges=None, freq=None, repeat=None, mode=None, trig_mode=None,
+    def set_sampling_config(self, chs, ranges, freq=None, repeat=None, mode=None, trig_mode=None,
                             trig_point=None, trig_delay=None, clock_edge=None, trig_edge=None, trig_di=None):
         self._log('set_sampling_config')
         config = self._create_sampling_config(chs, ranges, freq, repeat, mode, trig_mode, trig_point, trig_delay,
@@ -691,7 +696,7 @@ class gpg3300_controller(object):
         
         config = libgpg3300.DASMPLREQ()
         config.ulChCount = len(chs)
-        config.SmplChReq = ch_config
+        for i in range(len(ch_config)): config.SmplChReq[i] = ch_config[i]
         config.ulSamplingMode = DataTransferArchtecture.verify(mode)
         config.fSmplFreq = SamplingFreq.verify(freq)
         config.ulSmplRepeat = SamplingRepeat.verify(repeat)
@@ -705,20 +710,10 @@ class gpg3300_controller(object):
         return config
     
     def _create_sampling_ch_config(self, chs, ranges):
-        if chs is None: 
-            chs = [req.ulChNo for req in self._latest_sampling_config.SmplChReq if req.ulChNo!=0]
-            pass
-        
-        if ranges is None: 
-            ranges = [req.ulRange for req in self._latest_sampling_config.SmplChReq if req.ulChNo!=0]
-            pass
-        
-        if not type(chs) in [list, tuple]:
-            chs = [chs,]
-            ranges = [ranges,]
-            pass
-        
+        if not type(chs) in [list, tuple]: chs = [chs,]
         ch_no = len(chs)
+        
+        if not type(ranges) in [list, tuple]: ranges = [ranges] * ch_no
         
         ch_config = (libgpg3300.DASMPLCHREQ * ch_no)()
         for i, (ch, rang) in enumerate(zip(chs, ranges)):
@@ -754,13 +749,16 @@ class gpg3300_controller(object):
 
     def set_sampling_data(self, data):
         self._log('set_sampling_data, num=%d'%(len(data)))
+        data = numpy.array(data)
+        chnum = self._latest_sampling_config.ulChCount        
         
-        num = self._latest_sampling_config.ulChCount
-        if num!=len(data[0]): assert ValueError, 'data shape is wrong'
+        if data.ndim==1: 
+            data = data[:,None] * numpy.ones(chnum, int)[None,:]
+            pass
         
-        d = (ctypes.c_int * (len(data) * num))()
+        d = (ctypes.c_int * data.size)()
         for i in range(len(data)):
-            for j in range(num): d[i*num+j] = data[i][j]
+            for j in range(chnum): d[i*chnum+j] = data[i][j]
             continue
             
         ret = libgpg3300.DaSetSamplingData(self.ndev, ctypes.byref(d), len(data))
@@ -775,7 +773,7 @@ class gpg3300_controller(object):
 
     def start_sampling(self, syncflag=1):
         self._log('start_sampling')
-        OverlappedProcess.verify(syncflag)
+        syncflag = OverlappedProcess.verify(syncflag)
         ret = libgpg3300.DaStartSampling(self.ndev, syncflag)
         self._error_check(ret)
         return
@@ -795,7 +793,8 @@ class gpg3300_controller(object):
 
     def sync_sampling(self, mode):
         self._log('sync_sampling')
-        SynchronousNumber.verify(mode & 0x1100)
+        #SynchronousNumber.verify(mode & 0x1100)
+        mode = SynchronousAnalogOutput.verify(mode)
         ret = libgpg3300.DaSyncSampling(self.ndev, mode)
         self._error_check(ret)
         return

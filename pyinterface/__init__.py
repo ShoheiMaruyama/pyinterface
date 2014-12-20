@@ -259,7 +259,7 @@ from gpg3100 import gpg3100 as create_gpg3100
 from gpg3300 import gpg3300 as create_gpg3300
 #from gpg7400 import gpg7400 as create_gpg7400
 
-
+from daq import daq as create_daq
 
 
 

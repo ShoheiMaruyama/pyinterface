@@ -366,6 +366,7 @@ class gpg7204(object):
 
     def do_output(self, ch, output_time=100):
         self.ctrl.output_do('OUT%d'%ch)
+        if output_time==0: return
         time.sleep(output_time/1000.)
         self.ctrl.output_do(0)
         return

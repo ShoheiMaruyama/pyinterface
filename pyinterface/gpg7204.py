@@ -1,4 +1,6 @@
 
+import sys
+import time
 import ctypes
 import numpy
 
@@ -224,9 +226,9 @@ class OutputDO(pyinterface.BitIdentifer):
     bits[7].set_params('OUT8', 'HIGH', 'LOW')
     pass
 
-# 28: MtrOutputDI
+# 28: MtrInputDI
 # ---------------
-class OutputDI(pyinterface.BitIdentifer):
+class InputDI(pyinterface.BitIdentifer):
     size = 32
     bits = [pyinterface.BitIdentiferElement(i) for i in range(size)]
     del(i)
@@ -293,10 +295,82 @@ class ErrorGPG7204(pyinterface.ErrorCode):
 # GPG-7204 Python Controller
 # ==========================
 
+class gpg7204(object):
+    def __init__(self, ndev=1, remote=False):
+        initialize = not remote
+        self.ctrl = gpg7204_controller(ndev, initialize=initialize)
+        pass
+            
+    def start(self, speed, low_speed=5, acc=100, dec=100, sspeed=0):
+        if speed >= 0: direc = 1
+        else: direc = -1
+        speed = abs(int(speed))
+        self.ctrl.set_motion('MTR_JOG', 'MTR_ACC_NORMAL', low_speed=low_speed, speed=speed, acc=acc, 
+                             dec=dec, sspeed=sspeed, step=direc)
+        self.ctrl.start_motion('MTR_JOG')
+        return
+    
+    def stop(self):
+        self.ctrl.stop_motion()
+        return
+        
+    def change_speed(self, new_speed, mode='MTR_ACCDEC_CHANGE'):
+        new_speed = abs(new_speed)
+        self.ctrl.change_speed(mode, new_speed)
+        return
+    
+    def move(self, speed, count, low_speed=5, acc=100, dec=100, sspeed=0):
+        if speed >= 0: direc = 1
+        else: direc = -1
+        speed = abs(int(speed))
+        count *= direc
+        self.ctrl.set_motion('MTR_PTP', 'MTR_ACC_NORMAL', low_speed=low_speed, speed=speed, acc=acc, 
+                             dec=dec, sspeed=sspeed, step=count)
+        self.ctrl.start_motion('MTR_PTP')
+        return
+        
+    def move_with_lock(self, speed, count, low_speed=5, acc=100, dec=100, sspeed=0):
+        initial_position = self.ctrl.get_counter()
+        self.move(speed, count, low_speed=5, acc=100, dec=100, sspeed=0)
+        while True:
+            self.ctrl.print_log = False
+            current_speed = self.ctrl.get_speed()
+            if current_speed == 0: break
+            position = abs(initial_position - self.ctrl.get_counter())
+            sys.stdout.write('\rmoving... %5d/%d %d'%(position, abs(count), current_speed))
+            sys.stdout.flush()
+            time.sleep(0.1)
+            continue
+        self.ctrl.print_log = True
+        print('')
+        return
+        
+    def move_org(self, speed=1000, low_speed=5, acc=100, dec=100, sspeed=0):
+        initial_position = self.ctrl.get_counter()
+        speed = abs(int(speed))
+        step = initial_position * -1
+        self.move_with_lock(speed, step, low_speed=low_speed, acc=acc, dec=dec, sspeed=sspeed)
+        return
+    
+    def set_org(self):
+        self.ctrl.clear_counter()
+        return
+        
+    def di_check(self):
+        ret = self.ctrl.input_di()
+        return ret
+
+    def do_output(self, ch, output_time=100):
+        self.ctrl.output_do('OUT%d'%ch)
+        time.sleep(output_time/1000.)
+        self.ctrl.output_do(0)
+        return
+
 
 class gpg7204_controller(object):
     ndev = int()
     boardid = ''
+    print_log = True
     
     def __init__(self, ndev=1, boardid=742020, initialize=True):
         """
@@ -308,7 +382,9 @@ class gpg7204_controller(object):
         return
     
     def _log(self, msg):
-        print('Interface GPG7204(%d): %s'%(self.ndev, msg))
+        if self.print_log:
+            print('Interface GPG7204(%d): %s'%(self.ndev, msg))
+            pass
         return
         
     def _error_check(self, error_no):
@@ -437,6 +513,7 @@ class gpg7204_controller(object):
         """
         self._log('set_motion')
         mode = MotionMode.verify(mode)
+        print(mode)
         motion = lib.MTRMOTION()
         motion.dwMode = MotionAccMode.verify(motion_mode)
         motion.dwLowSpeed = low_speed
@@ -446,6 +523,7 @@ class gpg7204_controller(object):
         motion.dwSSpeed = sspeed
         motion.nStep = step
         motion.nReserved = 0
+        print(motion)
         ret = lib.MtrSetMotion(self.ndev, mode, motion)
         self._error_check(ret)
         return
@@ -528,7 +606,8 @@ class gpg7204_controller(object):
         self._log('get_motion')
         mode = MotionMode.verify(mode)
         motion = lib.MTRMOTION()
-        ret = lib.MtrSetMotion(self.ndev, mode, motion)
+        ret = lib.MtrGetMotion(self.ndev, mode, motion)
+        print(motion)
         self._error_check(ret)
         return motion
 
@@ -656,16 +735,16 @@ class gpg7204_controller(object):
         self._error_check(ret)
         return 
 
-    def output_di(self):
+    def input_di(self):
         """
-        28. MtrOutputDI
+        28. MtrInputDI
         ---------------
         """
-        self._log('output_di')
+        self._log('input_di')
         din = ctypes.c_ulong(0)
-        ret = lib.MtrOutputDI(self.ndev, din)
+        ret = lib.MtrInputDI(self.ndev, din)
         self._error_check(ret)
-        din = OutputDI(din.value)
+        din = InputDI(din.value)
         return din
 
 

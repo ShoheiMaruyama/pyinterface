@@ -31,8 +31,8 @@ class MTRMOTION(pyinterface.Structure):
                 ('dwAcc', ctypes.c_ulong),
                 ('dwDec', ctypes.c_ulong),
                 ('dwSSpeed', ctypes.c_ulong),
-                ('nStep', ctypes.c_ulong),
-                ('nReserved', ctypes.c_ulong)]
+                ('nStep', ctypes.c_long),
+                ('nReserved', ctypes.c_long)]
 
 
 # ==========

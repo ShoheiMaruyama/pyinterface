@@ -356,6 +356,10 @@ class gpg7204(object):
         self.ctrl.clear_counter()
         return
         
+    def get_position(self):
+        ret = self.ctrl.get_counter()
+        return ret
+        
     def di_check(self):
         ret = self.ctrl.input_di()
         return ret

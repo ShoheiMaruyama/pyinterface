@@ -172,9 +172,12 @@ class server_wrapper(object):
                 
             if not command in self.available_monitor_methods:
                 print(self.name+'::MonitorServer INFO: Received command is not available.')
+                rets = pickle.dumps('MethodError')
+                sends = '%-10d%s'%(len(rets), rets)
+                client.send(sends)
                 continue
             
-            ret = self.instance.__getattribute__(command)(*params)
+            ret = self.instance.__getattribute__(command)()
             rets = pickle.dumps(ret)
             sends = '%-10d%s'%(len(rets), rets)
             client.send(sends)
@@ -252,11 +255,11 @@ class control_client_wrapper(object):
 class monitor_client_wrapper(control_client_wrapper):
     def __getattr__(self, name):
         if name in self.available_monitor_methods:
-            send_func = lambda *p: self._send(name, *p)
+            send_func = lambda *p, **kw: self._send(name, *p, **kw)
             return send_func
         if name in self.available_methods:
             print('%s() is not supported in the monitor_client'%(name))
-            return lambda *p: None
+            return lambda *p, **kw: None
         raise AttributeError
         return
         

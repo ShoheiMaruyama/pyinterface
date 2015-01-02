@@ -4,7 +4,7 @@ import socket
 import pickle
 import threading
 
-transunit = 8192
+transunit = 65536
 
 class server_wrapper(object):
     flag_shutdown = False
@@ -71,7 +71,9 @@ class server_wrapper(object):
                 
                 command = recv[:20].strip()                
                 params = pickle.loads(recv[20:])
-                print(self.name+'::ControlServer RECV %s %s'%(command, params))
+                kwparams = params[-1]
+                params = params[:-1]
+                print(self.name+'::ControlServer RECV %s %s %s'%(command, params, kwparams))
                 
                 if command=='server_stop':
                     print(self.name+'::ControlServer INFO: Start shutdown.')
@@ -97,7 +99,7 @@ class server_wrapper(object):
                     continue
                 
                 try:
-                    ret = self.instance.__getattribute__(command)(*params)
+                    ret = self.instance.__getattribute__(command)(*params, **kwparams)
                 except TypeError:
                     print(self.name+'::ControlServer INFO: argument error.')
                     ret = 'ArgumentError'
@@ -198,7 +200,7 @@ class control_client_wrapper(object):
     
     def __getattr__(self, name):
         if name in self.available_methods:
-            send_func = lambda *p: self._send(name, *p)
+            send_func = lambda *p, **kw: self._send(name, *p, **kw)
             return send_func
         raise AttributeError
         return
@@ -231,7 +233,8 @@ class control_client_wrapper(object):
         self.client.connect((host, port))
         return
     
-    def _send(self, command, *params):
+    def _send(self, command, *params, **kwparams):
+        params.append(kwparams)
         sends = '%-20s%s'%(command, pickle.dumps(params))
         self.client.send(sends)
         

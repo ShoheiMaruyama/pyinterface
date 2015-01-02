@@ -234,6 +234,7 @@ class control_client_wrapper(object):
         return
     
     def _send(self, command, *params, **kwparams):
+        params = tuple(list(params).append(kwparams))
         params.append(kwparams)
         sends = '%-20s%s'%(command, pickle.dumps(params))
         self.client.send(sends)

@@ -101,8 +101,11 @@ class server_wrapper(object):
                 try:
                     ret = self.instance.__getattribute__(command)(*params, **kwparams)
                 except TypeError:
-                    print(self.name+'::ControlServer INFO: argument error.')
+                    print(self.name+'::ControlServer ERROR: argument error.')
                     ret = 'ArgumentError'
+                except Exception as e:
+                    print(self.name+'::ControlServer ERROR: %s'%(e))
+                    ret = e
                     pass
                     
                 rets = pickle.dumps(ret)
@@ -170,7 +173,7 @@ class server_wrapper(object):
             if not command in self.available_monitor_methods:
                 print(self.name+'::MonitorServer INFO: Received command is not available.')
                 continue
-                
+            
             ret = self.instance.__getattribute__(command)(*params)
             rets = pickle.dumps(ret)
             sends = '%-10d%s'%(len(rets), rets)

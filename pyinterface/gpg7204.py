@@ -526,7 +526,7 @@ class gpg7204_controller(object):
         motion.dwAcc = acc
         motion.dwDec = dec
         motion.dwSSpeed = sspeed
-        motion.nStep = step
+        motion.nStep = int(step)
         motion.nReserved = 0
         print(motion)
         ret = lib.MtrSetMotion(self.ndev, mode, motion)

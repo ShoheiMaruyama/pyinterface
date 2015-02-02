@@ -64,16 +64,17 @@ class server_wrapper(object):
                                                               client_address[1]))
             
             while True:
-                recv = client.recv(transunit)
-                if len(recv)==0: 
+                command = client.recv(40, socket.MSG_WAITALL).strip()
+                if len(command)==0: 
                     print(self.name+'::ControlServer INFO: Connection is broken.')
                     break
                 
-                command = recv[:20].strip()                
-                params = pickle.loads(recv[20:])
+                plen = int(client.recv(10, socket.MSG_WAITALL))
+                ptext = client.recv(plen, socket.MSG_WAITALL)
+                params = pickle.loads(ptext)
                 kwparams = params[-1]
                 params = params[:-1]
-                print(self.name+'::ControlServer RECV %s %s %s'%(command, params, kwparams))
+                print(self.name+'::ControlServer RECV %s %d %s %s'%(command, plen, params, kwparams))
                 
                 if command=='server_stop':
                     print(self.name+'::ControlServer INFO: Start shutdown.')
@@ -154,18 +155,19 @@ class server_wrapper(object):
         
         while True:
             try:
-                recv = client.recv(transunit)
+                command = client.recv(40, socket.MSG_WAITALL).strip()
             except socket.timeout:
                 if self.flag_shutdown: break
                 continue
             
-            if len(recv)==0: 
+            if len(command)==0: 
                 print(self.name+'::MonitorServer INFO: Connection is broken.')
                 break
                 
-            command = recv[:20].strip()                
-            params = pickle.loads(recv[20:])
-            print(self.name+'::MonitorServer RECV %s %s'%(command, params))
+            plen = int(client.recv(10, socket.MSG_WAITALL))
+            ptext = client.recv(plen, socket.MSG_WAITALL)
+            params = pickle.loads(ptext)
+            print(self.name+'::MonitorServer RECV %s %d %s'%(command, plen, params))
             
             if command=='bye':
                 break
@@ -243,7 +245,8 @@ class control_client_wrapper(object):
         _p = list(params)
         _p.append(kwparams)
         params = tuple(_p)
-        sends = '%-20s%s'%(command, pickle.dumps(params))
+        params_txt = pickle.dumps(params)
+        sends = '%-40s%-10d%s'%(command, len(params_txt), params_txt)
         self.client.send(sends)
         
         datalen = int(self.client.recv(10, socket.MSG_WAITALL))

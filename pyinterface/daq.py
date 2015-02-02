@@ -39,6 +39,7 @@ class daq(object):
         return
         
     def analog_series_output_next(self):
+        print(self._series_count)
         outp = self._series_data[self._series_count]
         self.analog_output(outp)
         next_count = self._series_count + 1

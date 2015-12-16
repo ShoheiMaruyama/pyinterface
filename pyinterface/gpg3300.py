@@ -101,7 +101,7 @@ class OutputRange(pyinterface.Identifer):
     def __init__(self, ids):
         self.available = []
         for key in dir(self):
-            if not key.isupper(): continue
+            if not(key[:3]=='DA_' and (key[-1] in ['V', 'A'])): continue
             value = self.__getattribute__(key)
             if value & ids: self.available.append(value)
             continue
